@@ -1,0 +1,296 @@
+##the magnus archives text based adventure game
+#hey , i know i may have gone a bit overboard with this so i have put below the sections where you can look for evidence of each of the marking sections
+'''
+- Strings - used throughout example being the pickUpItem subroutine
+- Ints and Floats - throughout and the finance subquest at line
+- Inputs and Outputs - used throughout example being the pickUpItem subroutine
+- Definitions - any of the subroutines
+- Conditionals - used throughout example being the talkToSomeone subroutine
+- Match Statements - main menu subroutime
+- Modulo - finance subquest
+- Loops - used throughout for example in main and mainMenu
+- Lists and Dictionaries - in the global variables defined below
+- Error Handling - in the finance subquest and change location
+'''
+
+#still to do
+#- finish writing comments
+# finish drop item subroutine
+
+
+# each character has the basic information: Name, descripstion strength and sanity
+userStats = []
+characterStats = [["Jonathan sims", 1, 50, 23, "oh dont tell me your actually looking into that rediculous case.  i told you its all nonsesne"],
+                ["Martin Blackwood", 1, 50, 23, "hello! would you like a cup of tea?"],
+                ["Sasha James", 1, 50, 23, "have you seen where tim has gotten too? i have the research he wanted for the eutemclaw case"],
+                ["Timothy Stoker", 1, 50, 23, "hey! hows it goin? dont work too hard alright, remember to have a bit of fun"],
+                ["Elias Bouchard", 1, 50, 23, 3]]
+userCurrentLocation = ""
+caseNotes = ""
+cluesFound = 0
+
+#here is my attempt at writing the userinventory as a dictionary as i felt it was th most sorted to this format
+# however it has not been fully integrated into the rest of the code and i have stuch with the list version that i orginally implimented for the time being as otherwise i would have had to go thtrough the whole peice and rewrite all of the referances to the inventory which i do not sadly have time for at the moment
+# i would hope  o fully integrate the distcionary at a leter date to improve the fficiency and readability of the system but i have left it out of this version i am handing in
+# i have however left commented out below the dictionary version so that you can see i do know how to use the format
+#UserInventory = {"notebook":"a small leather bound notebook with an eye motif embossed on the front.\n note about your case will be taken here \n you can view its contents on the main menu","pen":"one of those space pens that can write upside down, underwater and even in space. \n very important you dont loose it as how else would you take notes? ","folded peice of paper": "a very fancy formal document that seems to be some form of contract \n with your signiture at the bottom... \n you dont remember signing a contract..."}
+
+# the user has an inventory to store any items and evidence they find each item has a breif description that can be viewed upon inspection
+UserInventory = [["notebook","a small leather bound notebook with an eye motif embossed on the front.\n note about your case will be taken here \n you can view its contents on the main menu"],
+                ["pen","one of those space pens that can write upside down, underwater and even in space. \n very important you dont loose it as how else would you take notes? "],
+                ["folded peice of paper", "a very fancy formal document that seems to be some form of contract \n with your signiture at the bottom... \n you dont remember signing a contract..."]]
+
+#each room has a title, a description, an inventory of items which can be found in the room and a list of characters currently in that room
+rooms = [
+                ["Jons office", "a small dark dingey office with very little in terms of personal belongings,\n tape recorders and files are strewn haphazardly everywhere you look", [["clue 1", "a small brass coin"], ["clue 2", "a tranquilizer dart"], ["pepsi can", "half drunk can of pepsimax"]], ["Jonathan sims"]],
+                ["Martins office", "practically a cupboard, clearly only added last minuite and was never intended as an office \n  that being said clearly every effort has been made to make it as homey as possible\n there is a picture of a dog framed on the wall, fidget toys, half drunk cups of tea in novelty mugs and ... a corkscrew?", [["clue 3", " a spoon. not rusty but very old"]], ["Martin Blackwood"]],
+                ["Sashas office", "the only office with any windows, the view isnt great but the light means the room isnt quite so gloomy\n the plants on the windowsil also brighten the vibe \n looking around you see immaculately organised folders and stationary laid out exactly where they should be", [["cup", "half drunk cup of tea that says worlds greatest dad"],["ball of yarn", "red and blur ballof yarn, slightly unravelling"] ], ["Sasha James"]],
+                ["Timothys office", "other than the pristine shiny stack of CD's in the corner by a portablecd player this room is an absolute tip\n most of the case files on the desk look like they havent even been opened", [["clue4", "silicon foot"]], ["Timothy Stoker"]],
+                ["Elias' office", "a plain room with a desk at the center, \na window overlooking a view of london that is certainly too high of an angle for what you know to be a second floor window\n a single picture hangs on the wall, a portraight of the founder Jonah magnus \n his eyes seem to follow you as you move around the room \n but thats crazy right", [["finance papers", "boring documents about finance"]], []],
+                ["Break room", "the most bog stabdard office break room knoown to man, a couple postcards on the fridge\n some out of date milk left on the counter \n an ever growing pile of dirty mugs and a battered old kettle that wheezes before youve even plugged it in", [["clue 5", "wooden banana, made of hard oak and has been veneered"]], []],
+                ["Library", "rows and rows of bookshelves streatching away,\n a quick glance at the spines will tell you a large portion of the books are not in english", [], []],
+                ["Artifact storage", "boxes and parcels and shelves and objects tower piled on all sides, everything covered in a layer of dust \n in some places the dust is so thick you can bearely make out what the item is \n some even seem to be wrapped in chains \n as if being tied down", [], []]
+                ]
+
+
+
+def main():
+    global userStats
+    ## welcoming the user
+    EnterAtYourOwnPeril = input("welcome to The Magnus archives: a Text based adventure game. Are you ready to begin?")
+    if EnterAtYourOwnPeril == "yes":
+        print("You may regret your Eagerness")
+    else:
+        print("oh you fool. you never had a choice. i just asked to be polite")
+    print("new statement loading ...")
+    #introdcutory speach to explain what is going on
+    # make this intro speach better
+    print("*tape clicks on*\nHello, welcome to your first day working at the magnus institute London. an institude dedicated to investigating the paranormal and eseteric. but you know that already. youve worked  ")
+    setUserCharacter()
+    #finish explanation and mention the statement file
+    print(f"well {userStats[0]} sorry we cant be having this meeting face to face but I'm sure you understand how busy I am keeping an eye on everything around the Magnus institute. good luck with your first case")
+    statementToBeMade = True
+    while (statementToBeMade == True):
+        statementToBeMade = main_menu()
+    score = 20*cluesFound
+    print(f"congratulations on handing in your first case report. and managing to keep your mind in the process.\n you found {str(cluesFound)}/5 clues and so scored {score}%")
+    print("time to clock out for the night. see you tomorrow for a new meaty case for you to dig your teeth into.\n goodnight.\n sleep tight.\n pray that your dreams dont bite.\n*tape clicks off*")
+
+def changeLocation(): #definitions example
+    global userCurrentLocation
+    #display available rooms
+    index = 1
+    for r in (rooms):
+        print(f"{index}. {r[0]}")
+        index= index+1
+    validRoom = False
+    while (validRoom == False):
+        try:
+            chosenRoom = int(input("which room would you like to move too? ")) # take the users choice of room
+            newRoom = rooms[chosenRoom-1]
+            roomname = newRoom[0]
+            if (roomname == userCurrentLocation): # check they ar not already in that room
+               print("no need to move you are already here")
+            else:
+            # move the user to the new location change the data for who is in each room and tell the user
+                for r in rooms:
+                    if r[0] == userCurrentLocation:
+                        r[3].remove(userStats[0])
+                userCurrentLocation = roomname
+                newRoom[3].append(userStats[0])
+                print(f"you enter {userCurrentLocation}")
+
+                break
+        except TypeError | IndexError: # if the input is not a number or is notan index available on the list of rooms it catches the error
+            print("this is not a valid input")
+
+def main_menu():
+    print("="*40)
+    #ask the user what they would like to do
+    print ("main Menu: \nWhat would you like to do?\n1. move to another room\n2. open inventory\n3. look around\n4. talk to someone\n5. view case notes \n6. make a statement\n 7. Pick up an item")
+    validInput = False
+    while (validInput==False):
+        chosenAction = input("please enter the number of your chosen action: ")
+        match chosenAction:
+            case '1': # move to another room
+                changeLocation()
+                break
+            case '2':
+                open_inventory()
+                break
+            case '3':
+                lookAround()
+                break
+            case '4':
+                talkToSomeone()
+                break
+            case '5':
+                CaseNotes()
+                break
+            case '6':
+                print("you think youve got all the evidence now and you have the storey straight. \n so you pull out the cassette recorder and open you notepad to the case notes you have gathered\n and you begin to tell the story...")
+                return False
+            case '7':
+                pickUpitem()
+                break
+            case _:
+                print("this is not a valid input. try again.")
+    return True
+
+def talkToSomeone():
+    for roomInfo in rooms:
+        if roomInfo[0] == userCurrentLocation:
+            if len(roomInfo[3]) == 1:
+                print("your the only person here. You cant talk to yourself \n your not that insane...yet")
+            else:
+                peopleinroom = ""
+                for r in roomInfo[3]:
+                    if r != userStats[0]:
+                        peopleinroom = peopleinroom + "\n- " + r
+                print(f"you look around the room and see {peopleinroom}")
+                who = input("who would you like to speak to? ")
+                for r in roomInfo[3]:
+                    if r == who:
+                        for char in characterStats:
+                            if who == char[0]:
+                                print(f"{who}: '{char[4]}'")
+
+def lookAround():
+    print("="*40)
+    for r in rooms:
+        if r[0] == userCurrentLocation:
+            print(f"looking around you see {r[1]}")  
+
+def CaseNotes():
+    print(f"you open your notebook and flip to the page with notes on todays case. it reads: {caseNotes}")
+
+def open_inventory():
+    print("="*40)
+    print("you open your bag to find it contains: ")
+    for r in UserInventory:
+        print(f"- {r[0]}")
+    inspectable = input("enter the item you would like to inspect or press enter to return to main menu: ")
+    for r in UserInventory:
+        if(inspectable == r[0]):
+            print(f"you take a closer look at {r[0]}: {r[1]}")
+            drop = input("would you like to drop the item? ")
+            if drop == "yes" and (inspectable != "pen" and inspectable != "notebook" and inspectable != "folded peice of paper"):
+                dropItem(inspectable)
+            elif drop == "yes" and (inspectable == "pen" or inspectable == "notebook" or inspectable == "folded peice of paper"):
+                print(f"you place the {r[0]} on the floor and stand up only to find it has dissapeared from where you put it.\n you get a feeling if you check in your bag it will be back right where you found it")
+            break
+
+def setUserCharacter():
+    print("="*40)
+    global userCurrentLocation
+    global userStats
+    #select the users character
+    print("desicion: who would you like to play as?\n1. Jonathan Sims - the grumpy sceptic\n2. Martin Blackwood - the quiet, clumsy softie who loves tea (but not oolong)\n3. Sasha James - the smart hardworker trying to prove herself\n4. Timothy Stoker - chraming flirt and office clown")
+    #check this is a valid imput (match case statement example) and set the users information
+    validInput = False
+    while(validInput == False):
+        user_character = input("enter the number for the character you would like to play:  ")
+        match user_character:
+            case '1':
+                userStats = characterStats[0]
+                userCurrentLocation = "Jons office"
+                break
+            case '2':
+                userStats = characterStats[1]
+                userCurrentLocation = "Martins office"
+                break
+            case '3':
+                userStats = characterStats[2]
+                userCurrentLocation = "Sashas office"
+                break        
+            case '4':
+                userStats = characterStats[3]
+                userCurrentLocation = "Timothys office"
+                break
+            case _:
+                print("this is not a valid input :(")
+    # display the users information to them
+    print("you have chosen to play as "+ str(userStats[0]))
+    displayUserStats()
+    #remove users character from available character stats
+    removeCharacter()
+
+def pickUpitem():
+    global cluesFound
+    global caseNotes
+    for r in range (0,len(rooms)-1):
+        selectedRoom = rooms[r]
+        if selectedRoom[0] == userCurrentLocation:
+            if len(selectedRoom[2]) == 0:
+                print("there is nothing you can pick up")
+            else:
+                print ("the items that you could pick up are:")
+                for item in selectedRoom[2]:
+                    print(f"- {item[0]}")
+                chosenItem = input("which item would you like to pick up? or press enter to return to main menu: ")
+                itemIndex = 0
+                for item in selectedRoom[2]:
+                    if chosenItem == item[0]:
+                        selectedRoom[2].pop(itemIndex)
+                        rooms[r] = selectedRoom
+                        UserInventory.append(item)
+                        match item[0]:
+                            case "clue 1" | "clue 2" |"clue 3" |"clue 4" |"clue 5":
+                                print("youve found a clue!!!")
+                                cluesFound = cluesFound+1
+                                caseNotes = caseNotes + "\n found a clue. im calling it "+ item[0] + "and it looks like "+ item[1]
+                            case "finance papers":
+                                financeSubquest()
+                            case _:
+                                print("its just an ordiary object but you pick it up anyway")
+                    itemIndex = itemIndex +1
+
+
+# havet quite got this bit working yet sorry. i ran out of time
+def dropItem(itemname):
+    for index in range (0,(len(UserInventory)-1)):
+        item= UserInventory[index]
+        if item[0] == itemname:
+            UserInventory.pop(index)
+            for room in rooms:
+                if room[0] == userCurrentLocation:
+                    room[2].append(item)
+
+    
+
+def displayUserStats():
+    print("="*40)
+    global userStats
+    print (f"your current stats:\nName: {userStats[0]}\nDescription: {userStats[1]}\nStrength: {userStats[2]}\nSanity: {userStats[3]} ")
+
+def removeCharacter():
+    global userStats
+    characterStats.remove(userStats)
+
+def financeSubquest():
+    #i am aware this isnt as throroughly exemplified as other aspects of the code because the mre mathematical side did not fit so well into the plan for this project. i hope this is okay to show that i can use the content when required
+    print("oh looks like you have found some incomplete finance papers. they read as follows: \n elias we have not recieved the details on your staffs income situations\n therefore tax cannot be calculated \nplease inform us of your employees figures as soon as possible ")
+    print("the form requires the following information. please enter it to the best of your ability")
+    questComplete = False
+    taxApplied = float
+    while (questComplete == False):
+        try:
+            incomebeforeTax = int(input("what is your monthly income in pounds before tax: "))
+            incomeAfterTax = int(input("what is your monthly income in pounds after tax: "))
+            taxApplied = 100 - ((incomeAfterTax/incomebeforeTax) *100)
+            print(f"this means your tax must be {taxApplied} %")
+            break
+        except ZeroDivisionError:
+            print("you arent getting paid? somethings wrong here")
+        except ValueError:
+            print("there has been an invalid input. try again")
+    print("well done you finished filling in the form. now just a fun little question.")
+    try:
+        spend = int(input("imagine youve just recieved your paycheck and you buy as many as you can of your favorurite ice cream flavour. how much does one scoop cost? "))
+        numOffIcecream = incomeAfterTax // spend
+        remainder = incomeAfterTax % spend
+        print(f"so that means you could buy {str(numOffIcecream)} scoops of ice cream and you would have {remainder} left over still!")
+    except ZeroDivisionError or ValueError:
+        print("your no fun :(")
+
+main()
